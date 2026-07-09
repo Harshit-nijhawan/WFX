@@ -6,26 +6,22 @@ import { NLQuery } from './pages/NLQuery';
 import { ProductSearch } from './pages/ProductSearch';
 import { FinishedGoodsExplorer } from './pages/FinishedGoodsExplorer';
 import { Auth } from './pages/Auth';
-import { Loader2, Sun, Moon } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
-  const [currentTab, setCurrentTab] = useState('dashboard');
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved) return saved === 'dark';
-    return true; // Default to dark mode for rich aesthetics
+  const [currentTab, setCurrentTab] = useState(() => {
+    return localStorage.getItem('currentTab') || 'dashboard';
   });
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('currentTab', currentTab);
+  }, [currentTab]);
 
   if (isLoading) {
     return (
@@ -62,25 +58,7 @@ const AppContent: React.FC = () => {
 
       {/* Main content scroll workspace container */}
       <main className="flex-1 ml-64 min-h-screen p-8 overflow-y-auto relative">
-        {/* Top Right Theme Toggle */}
-        <div className="absolute top-8 right-8 z-20">
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-lg shadow-sm transition-all duration-150 flex items-center gap-2 text-xs font-medium"
-          >
-            {isDarkMode ? (
-              <>
-                <Sun className="w-3.5 h-3.5 text-amber-500" />
-                <span>Light</span>
-              </>
-            ) : (
-              <>
-                <Moon className="w-3.5 h-3.5 text-blue-500" />
-                <span>Dark</span>
-              </>
-            )}
-          </button>
-        </div>
+
 
         <div className="max-w-7xl mx-auto">
           {renderActiveTab()}

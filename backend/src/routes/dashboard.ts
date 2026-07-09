@@ -20,10 +20,10 @@ router.get('/stats', authenticateJWT, async (req: AuthenticatedRequest, res: Res
     // We fetch aggregates in parallel using the safe sql exec function we designed.
     const revenueQuery = `SELECT SUM(amount) as total_revenue FROM public.sales_invoices`;
     const monthlyRevenueQuery = `
-      SELECT SUBSTRING(shipment_date FROM 1 FOR 7) as month, SUM(quantity * unit_price) as revenue
+      SELECT TO_CHAR(shipment_date, 'YYYY-MM') as month, SUM(quantity * unit_price) as revenue
       FROM public.sales_orders
-      WHERE shipment_date IS NOT NULL AND shipment_date <> ''
-      GROUP BY SUBSTRING(shipment_date FROM 1 FOR 7)
+      WHERE shipment_date IS NOT NULL
+      GROUP BY TO_CHAR(shipment_date, 'YYYY-MM')
       ORDER BY month ASC
       LIMIT 12
     `;

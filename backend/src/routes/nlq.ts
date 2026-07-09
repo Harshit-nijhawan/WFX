@@ -36,6 +36,26 @@ router.get('/query', authenticateJWT, async (req: AuthenticatedRequest, res: Res
       }
     }
 
+    // Check for mutating/modification intent
+    const lowerQuery = query.toLowerCase();
+    const isModificationQuery =
+      /\b(alter|drop|truncate|create|rename)\s+(table|column|database|view)\b/i.test(lowerQuery) ||
+      /\b(insert|update|delete|modify|remove|add|create)\b.*\b(table|column|row|record|style|supplier|buyer|price|cost|invoice|order)\b/i.test(lowerQuery) ||
+      /\b(change|chnage)\b.*\b(table|column|name|schema|value)\b/i.test(lowerQuery) ||
+      /\b(delete\s+from|insert\s+into|update\s+\w+\s+set)\b/i.test(lowerQuery) ||
+      /\b(drop|truncate|alter|rename|create)\b/i.test(lowerQuery);
+
+    if (isModificationQuery) {
+      sendEvent('status', { message: 'Verifying user permissions...' });
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      sendEvent('sql', { sql: '-- READ ONLY PRIVILEGES ENFORCED --' });
+      sendEvent('results', { results: [] });
+      sendEvent('token', { token: 'You cannot change, update, insert, or modify anything from here. You only have permission to view the data.' });
+      sendEvent('done', {});
+      res.end();
+      return;
+    }
+
     sendEvent('status', { message: 'Analyzing query and translating to SQL...' });
     
     // Step 1: Generate SQL and execute with self-correction

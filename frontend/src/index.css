@@ -35,35 +35,6 @@
     --radius: 0.5rem; /* Tight enterprise radius: 8px */
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%; /* Slate 950 background */
-    --foreground: 210 40% 98%; /* White text */
-
-    --card: 222 47% 11%; /* Slate 900 cards */
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 215 20.2% 65.1%;
-
-    --primary: 217.2 91.2% 59.8%; /* Blue 500 primary */
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 222.2 47.4% 11.2%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 223 47% 11%;
-    --muted-foreground: 215.4 16.3% 56.9%;
-
-    --accent: 216 34% 17%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 216 34% 17%; /* Slate 800 borders */
-    --input: 216 34% 17%;
-    --ring: 217.2 91.2% 59.8%;
-  }
 }
 
 @layer base {

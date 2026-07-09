@@ -180,10 +180,10 @@ router.post('/image', authenticateJWT, upload.single('image'), async (req: Authe
     // Generate CLIP image embedding directly from the file buffer
     const embedding = await embeddingService.getImageEmbedding(req.file.buffer);
 
-    // Run similarity match against the database with a fixed background threshold of 0.70
+    // Run similarity match against the database with a fixed background threshold of 0.50
     const { data: results, error } = await supabase.rpc('match_finished_goods', {
       query_embedding: embedding,
-      match_threshold: 0.70,
+      match_threshold: 0.50,
       match_count: 1000
     });
 

@@ -1,12 +1,10 @@
-import dotenv from 'dotenv';
-import axios from 'axios';
-
-dotenv.config();
-
-const HF_TOKEN = process.env.HUGGINGFACE_TOKEN;
-// Use the Inference Providers router URL — matches the token permission "Make calls to Inference Providers"
-// The legacy api-inference.huggingface.co requires a different "Read" token type
-const HF_API_URL = 'https://router.huggingface.co/hf-inference/models/openai/clip-vit-base-patch32';
+import { 
+  AutoTokenizer, 
+  AutoProcessor,
+  CLIPTextModelWithProjection,
+  CLIPVisionModelWithProjection,
+  RawImage 
+} from '@xenova/transformers';
 
 /**
  * Normalizes a vector to unit length (L2 norm = 1).
@@ -19,93 +17,56 @@ function normalizeVector(embedding: number[]): number[] {
 }
 
 class EmbeddingService {
-  /**
-   * Queries the HuggingFace Inference API for CLIP embeddings using axios.
-   * Handles model cold-start (503) with automatic retry and backoff.
-   */
-  private async queryHuggingFace(
-    data: object | Buffer,
-    contentType: string,
-    retries = 4
-  ): Promise<number[]> {
-    if (!HF_TOKEN) {
-      throw new Error('HUGGINGFACE_TOKEN environment variable is not set. Add it in Render dashboard.');
-    }
+  private tokenizer: any = null;
+  private processor: any = null;
+  private textModel: any = null;
+  private visionModel: any = null;
+  private initialized = false;
 
-    for (let attempt = 0; attempt < retries; attempt++) {
-      try {
-        const response = await axios.post(HF_API_URL, data, {
-          headers: {
-            Authorization: `Bearer ${HF_TOKEN}`,
-            'Content-Type': contentType,
-          },
-          timeout: 60000, // 60s — HuggingFace free tier can be slow on cold start
-          responseType: 'json',
-        });
+  private async initialize() {
+    if (this.initialized) return;
 
-        if (response.status === 503) {
-          // Model is cold-starting on HuggingFace servers
-          const waitMs = Math.min(((response.data as any).estimated_time || 20) * 1000, 30000);
-          console.log(`[HuggingFace] Model loading... retrying in ${waitMs / 1000}s (attempt ${attempt + 1}/${retries})`);
-          await new Promise((resolve) => setTimeout(resolve, waitMs));
-          continue;
-        }
-
-        // HuggingFace returns [[...512 floats...]] for CLIP feature extraction
-        const result = response.data as number[][];
-        const embedding = Array.isArray(result[0]) ? result[0] : (result as unknown as number[]);
-        return normalizeVector(embedding);
-
-      } catch (err: any) {
-        if (axios.isAxiosError(err)) {
-          const status = err.response?.status;
-          const body = err.response?.data;
-
-          // 503 = model loading, retry
-          if (status === 503) {
-            const waitMs = Math.min(((body as any)?.estimated_time || 20) * 1000, 30000);
-            console.log(`[HuggingFace] 503 Model loading... retrying in ${waitMs / 1000}s (attempt ${attempt + 1}/${retries})`);
-            await new Promise((resolve) => setTimeout(resolve, waitMs));
-            continue;
-          }
-
-          // Log full details for debugging
-          console.error(`[HuggingFace] Axios error on attempt ${attempt + 1}:`, {
-            status,
-            statusText: err.response?.statusText,
-            body,
-            message: err.message,
-            code: err.code,
-          });
-        } else {
-          console.error(`[HuggingFace] Non-axios error on attempt ${attempt + 1}:`, err);
-        }
-
-        // On last attempt, throw
-        if (attempt === retries - 1) throw err;
-
-        // Wait 2s before next retry on other errors
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
-    }
-
-    throw new Error('HuggingFace CLIP API failed after maximum retries.');
+    console.log('[Embedding] Loading CLIP model components locally...');
+    const modelId = 'Xenova/clip-vit-base-patch32';
+    
+    this.tokenizer = await AutoTokenizer.from_pretrained(modelId);
+    this.processor = await AutoProcessor.from_pretrained(modelId);
+    this.textModel = await CLIPTextModelWithProjection.from_pretrained(modelId);
+    this.visionModel = await CLIPVisionModelWithProjection.from_pretrained(modelId);
+    
+    this.initialized = true;
+    console.log('[Embedding] CLIP model components loaded successfully!');
   }
 
   /**
-   * Generates a normalized CLIP text embedding via HuggingFace Inference API.
+   * Generates a normalized CLIP text embedding locally.
    */
   async getTextEmbedding(text: string): Promise<number[]> {
-    console.log(`[Embedding] Generating text embedding for: "${text.substring(0, 60)}"`);
-    return this.queryHuggingFace({ inputs: text }, 'application/json');
+    await this.initialize();
+    console.log(`[Embedding] Generating text embedding locally for: "${text.substring(0, 60)}"`);
+    
+    const textInputs = this.tokenizer([text], { padding: true, truncation: true });
+    const { text_embeds } = await this.textModel(textInputs);
+    
+    const embedding = Array.from(text_embeds.data) as number[];
+    return normalizeVector(embedding);
   }
 
   /**
-   * Generates a normalized CLIP image embedding via HuggingFace Inference API.
+   * Generates a normalized CLIP image embedding locally.
    */
   async getImageEmbedding(imageBuffer: Buffer): Promise<number[]> {
-    console.log(`[Embedding] Generating image embedding (${imageBuffer.length} bytes)`);
-    return this.queryHuggingFace(imageBuffer, 'image/jpeg');
+    await this.initialize();
+    console.log(`[Embedding] Generating image embedding locally (${imageBuffer.length} bytes)`);
+    
+    const blob = new Blob([imageBuffer]);
+    const rawImage = await RawImage.fromBlob(blob);
+    
+    const imageInputs = await this.processor(rawImage);
+    const { image_embeds } = await this.visionModel(imageInputs);
+    
+    const embedding = Array.from(image_embeds.data) as number[];
+    return normalizeVector(embedding);
   }
 }
 

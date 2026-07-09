@@ -23,14 +23,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setTab }) => {
       
       {/* Brand Header */}
       <div>
-        <div className="p-6 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800">
-          <div className="p-1.5 bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
-            <img src={logoImg} alt="WFX Logo" className="w-6.5 h-6.5 object-contain" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white tracking-tight">WFX ERP</h2>
-            <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-500 uppercase tracking-widest">AI Platform</span>
-          </div>
+        <div className="p-6 flex items-center gap-3 border-b border-slate-200">
+          <img src={logoImg} alt="WFX Logo" className="h-8 w-auto object-contain" />
+          <div className="h-4 w-px bg-slate-200"></div>
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+            ERP
+          </span>
         </div>
  
         {/* Navigation Menu */}
@@ -66,7 +64,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setTab }) => {
           </div>
           <div className="overflow-hidden">
             <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">{user?.email}</p>
-            <span className="text-[10px] text-slate-500">AI Operator</span>
           </div>
         </div>
 
