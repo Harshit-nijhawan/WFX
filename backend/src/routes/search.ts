@@ -76,8 +76,37 @@ router.post('/text', authenticateJWT, async (req: AuthenticatedRequest, res: Res
       return { ...item, similarity: Math.max(0, Math.min(1, score)) };
     });
 
+    // Apply optional structured filters
+    let filteredResults = reRanked;
+    const { category, fabric, brand, supplier, color: filterColor, season, gsmMin, gsmMax } = req.body;
+
+    if (category) {
+      filteredResults = filteredResults.filter((item: any) => (item.category || '').toLowerCase() === category.toLowerCase());
+    }
+    if (fabric) {
+      filteredResults = filteredResults.filter((item: any) => (item.fabric || '').toLowerCase() === fabric.toLowerCase());
+    }
+    if (brand) {
+      filteredResults = filteredResults.filter((item: any) => (item.brand || '').toLowerCase() === brand.toLowerCase());
+    }
+    if (supplier) {
+      filteredResults = filteredResults.filter((item: any) => (item.supplier || '').toLowerCase() === supplier.toLowerCase());
+    }
+    if (filterColor) {
+      filteredResults = filteredResults.filter((item: any) => (item.color || '').toLowerCase().includes(filterColor.toLowerCase()));
+    }
+    if (season) {
+      filteredResults = filteredResults.filter((item: any) => (item.season || '').toLowerCase() === season.toLowerCase());
+    }
+    if (gsmMin !== undefined && gsmMin !== null && gsmMin !== '') {
+      filteredResults = filteredResults.filter((item: any) => Number(item.gsm) >= Number(gsmMin));
+    }
+    if (gsmMax !== undefined && gsmMax !== null && gsmMax !== '') {
+      filteredResults = filteredResults.filter((item: any) => Number(item.gsm) <= Number(gsmMax));
+    }
+
     // Filter by fixed similarity threshold of 0.80, and sort descending
-    const finalResults = reRanked
+    const finalResults = filteredResults
       .filter((item: any) => item.similarity >= 0.80)
       .sort((a: any, b: any) => b.similarity - a.similarity);
 
@@ -100,7 +129,35 @@ router.post('/text', authenticateJWT, async (req: AuthenticatedRequest, res: Res
       const { data: keywordResults, error: kwErr } = await query;
       if (kwErr) throw kwErr;
 
-      const results = (keywordResults || []).map((item: any) => ({ ...item, similarity: 0.85 }));
+      let finalKeywordResults = keywordResults || [];
+      const { category, fabric, brand, supplier, color: filterColor, season, gsmMin, gsmMax } = req.body;
+
+      if (category) {
+        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.category || '').toLowerCase() === category.toLowerCase());
+      }
+      if (fabric) {
+        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.fabric || '').toLowerCase() === fabric.toLowerCase());
+      }
+      if (brand) {
+        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.brand || '').toLowerCase() === brand.toLowerCase());
+      }
+      if (supplier) {
+        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.supplier || '').toLowerCase() === supplier.toLowerCase());
+      }
+      if (filterColor) {
+        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.color || '').toLowerCase().includes(filterColor.toLowerCase()));
+      }
+      if (season) {
+        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.season || '').toLowerCase() === season.toLowerCase());
+      }
+      if (gsmMin !== undefined && gsmMin !== null && gsmMin !== '') {
+        finalKeywordResults = finalKeywordResults.filter((item: any) => Number(item.gsm) >= Number(gsmMin));
+      }
+      if (gsmMax !== undefined && gsmMax !== null && gsmMax !== '') {
+        finalKeywordResults = finalKeywordResults.filter((item: any) => Number(item.gsm) <= Number(gsmMax));
+      }
+
+      const results = finalKeywordResults.map((item: any) => ({ ...item, similarity: 0.85 }));
       return res.status(200).json({ results, searchMode: 'keyword' });
 
     } catch (fallbackError: any) {
@@ -137,6 +194,9 @@ router.post('/image', authenticateJWT, upload.single('image'), async (req: Authe
     return res.status(200).json({ results: results || [] });
   } catch (error: any) {
     console.error('Image similarity search error:', error.message);
+    if (error.message && error.message.includes('HUGGINGFACE_TOKEN')) {
+      return res.status(400).json({ error: 'Image search requires a HUGGINGFACE_TOKEN configured on the server. Please add it to your environment variables.' });
+    }
     return res.status(500).json({ error: 'Internal server error during image search.' });
   }
 });

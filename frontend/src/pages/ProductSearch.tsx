@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Search, Upload, Image as ImageIcon, Loader2, Sparkles, Database, AlertCircle } from 'lucide-react';
+import { Search, Upload, Image as ImageIcon, Loader2, Sparkles, Database, AlertCircle, RotateCcw } from 'lucide-react';
 
 interface StyleMatch {
   style_number: string;
@@ -28,11 +28,51 @@ export const ProductSearch: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Dynamic filter states
+  const [category, setCategory] = useState('');
+  const [fabric, setFabric] = useState('');
+  const [brand, setBrand] = useState('');
+  const [supplier, setSupplier] = useState('');
+  const [color, setColor] = useState('');
+  const [season, setSeason] = useState('');
+  const [gsmMin, setGsmMin] = useState('');
+  const [gsmMax, setGsmMax] = useState('');
+
+  // Available filter options lists
+  const [categories, setCategories] = useState<string[]>([]);
+  const [fabrics, setFabrics] = useState<string[]>([]);
+  const [brands, setBrands] = useState<string[]>([]);
+  const [suppliers, setSuppliers] = useState<string[]>([]);
+  const [colors, setColors] = useState<string[]>([]);
+  const [seasons, setSeasons] = useState<string[]>([]);
+
   // Indexing states
   const [indexing, setIndexing] = useState(false);
   const [indexResult, setIndexResult] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchFilterOptions = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/api/products/filters`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data.categories || []);
+          setFabrics(data.fabrics || []);
+          setBrands(data.brands || []);
+          setSuppliers(data.suppliers || []);
+          setColors(data.colors || []);
+          setSeasons(data.seasons || []);
+        }
+      } catch (err) {
+        console.error('Failed to load search filter options:', err);
+      }
+    };
+    fetchFilterOptions();
+  }, [token, apiUrl]);
 
   const handleImageChange = (file: File) => {
     setImageFile(file);
@@ -82,7 +122,15 @@ export const ProductSearch: React.FC = () => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            text: textQuery
+            text: textQuery,
+            category,
+            fabric,
+            brand,
+            supplier,
+            color,
+            season,
+            gsmMin,
+            gsmMax
           })
         });
       }
@@ -112,7 +160,7 @@ export const ProductSearch: React.FC = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        setIndexResult(`Successfully indexed ${data.count} styles.`);
+        setIndexResult(`Successfully indexed ${data.count || data.success || 0} styles.`);
       } else {
         setIndexResult(`Failed: ${data.error}`);
       }
@@ -127,6 +175,17 @@ export const ProductSearch: React.FC = () => {
     setImageFile(null);
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const resetFilters = () => {
+    setCategory('');
+    setFabric('');
+    setBrand('');
+    setSupplier('');
+    setColor('');
+    setSeason('');
+    setGsmMin('');
+    setGsmMax('');
   };
 
   return (
@@ -240,6 +299,143 @@ export const ProductSearch: React.FC = () => {
                 )}
               </div>
             ) : null}
+
+            {/* Structured Filters Grid (Only shown when doing text search) */}
+            {!imagePreview && (
+              <div className="space-y-4 pt-6 border-t border-slate-200 dark:border-slate-800">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Structured Filters
+                  </label>
+                  {(category || fabric || brand || supplier || color || season || gsmMin || gsmMax) && (
+                    <button
+                      type="button"
+                      onClick={resetFilters}
+                      className="text-[10px] text-blue-600 dark:text-blue-500 hover:text-blue-500 font-bold uppercase tracking-wider flex items-center gap-1.5 transition"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>Reset Filters</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  {/* Category Filter */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-slate-500 font-medium">Category</span>
+                    <select
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      className="text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-800 dark:text-white rounded-lg p-2.5 outline-none focus:border-blue-600 transition cursor-pointer"
+                    >
+                      <option value="">All Categories</option>
+                      {categories.map((c, i) => (
+                        <option key={i} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Fabric Filter */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-slate-500 font-medium">Fabric</span>
+                    <select
+                      value={fabric}
+                      onChange={(e) => setFabric(e.target.value)}
+                      className="text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-800 dark:text-white rounded-lg p-2.5 outline-none focus:border-blue-600 transition cursor-pointer"
+                    >
+                      <option value="">All Fabrics</option>
+                      {fabrics.map((f, i) => (
+                        <option key={i} value={f}>{f}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Brand Filter */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-slate-500 font-medium">Brand</span>
+                    <select
+                      value={brand}
+                      onChange={(e) => setBrand(e.target.value)}
+                      className="text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-800 dark:text-white rounded-lg p-2.5 outline-none focus:border-blue-600 transition cursor-pointer"
+                    >
+                      <option value="">All Brands</option>
+                      {brands.map((b, i) => (
+                        <option key={i} value={b}>{b}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Supplier Filter */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-slate-500 font-medium">Supplier</span>
+                    <select
+                      value={supplier}
+                      onChange={(e) => setSupplier(e.target.value)}
+                      className="text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-800 dark:text-white rounded-lg p-2.5 outline-none focus:border-blue-600 transition cursor-pointer"
+                    >
+                      <option value="">All Suppliers</option>
+                      {suppliers.map((s, i) => (
+                        <option key={i} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Color Filter */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-slate-500 font-medium">Color</span>
+                    <select
+                      value={color}
+                      onChange={(e) => setColor(e.target.value)}
+                      className="text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-800 dark:text-white rounded-lg p-2.5 outline-none focus:border-blue-600 transition cursor-pointer"
+                    >
+                      <option value="">All Colors</option>
+                      {colors.map((col, i) => (
+                        <option key={i} value={col}>{col}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Season Filter */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-slate-500 font-medium">Season</span>
+                    <select
+                      value={season}
+                      onChange={(e) => setSeason(e.target.value)}
+                      className="text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-800 dark:text-white rounded-lg p-2.5 outline-none focus:border-blue-600 transition cursor-pointer"
+                    >
+                      <option value="">All Seasons</option>
+                      {seasons.map((se, i) => (
+                        <option key={i} value={se}>{se}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* GSM Min Filter */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-slate-500 font-medium">Min GSM</span>
+                    <input
+                      type="number"
+                      placeholder="e.g. 150"
+                      value={gsmMin}
+                      onChange={(e) => setGsmMin(e.target.value)}
+                      className="text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-800 dark:text-white rounded-lg p-2.5 outline-none focus:border-blue-600 transition"
+                    />
+                  </div>
+
+                  {/* GSM Max Filter */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-slate-500 font-medium">Max GSM</span>
+                    <input
+                      type="number"
+                      placeholder="e.g. 300"
+                      value={gsmMax}
+                      onChange={(e) => setGsmMax(e.target.value)}
+                      className="text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-800 dark:text-white rounded-lg p-2.5 outline-none focus:border-blue-600 transition"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Submit Button */}
             <button

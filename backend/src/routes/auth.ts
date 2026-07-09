@@ -70,15 +70,16 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 
   try {
-    // Fetch user bypassing RLS via exec_sql
-    const { data: rawUsers, error } = await supabase.rpc('exec_sql', {
-      sql_query: `SELECT * FROM public.users WHERE email = '${email}' LIMIT 1`
-    });
+    // Fetch user securely via Supabase JS SDK (automatically parameterized)
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle();
 
-    if (error || !rawUsers || rawUsers.length === 0) {
+    if (error || !user) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
-    const user = rawUsers[0];
 
     // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password_hash);
