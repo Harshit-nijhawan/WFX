@@ -12,18 +12,39 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// --- CORS Configuration ---
+// In production, only allow requests from the deployed Vercel frontend.
+// In development, allow localhost:5173 (Vite dev server).
+const allowedOrigins: string[] = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (server-to-server, curl, Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS policy: Origin ${origin} is not allowed.`));
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
 
 // Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check Endpoint
+// Health Check Endpoint — used by UptimeRobot to keep Render free tier awake
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
@@ -44,4 +65,5 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Start Server
 app.listen(PORT, () => {
   console.log(`WFX AI ERP Server running on port ${PORT}`);
+  console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
 });

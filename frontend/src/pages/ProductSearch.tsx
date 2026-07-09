@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Search, Upload, Image as ImageIcon, Loader2, Sparkles, Sliders, Database, AlertCircle } from 'lucide-react';
+import { Search, Upload, Image as ImageIcon, Loader2, Sparkles, Database, AlertCircle } from 'lucide-react';
 
 interface StyleMatch {
   style_number: string;
