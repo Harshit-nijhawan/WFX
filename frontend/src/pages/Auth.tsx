@@ -35,44 +35,41 @@ export const Auth: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-[#07080e] overflow-hidden px-4">
-      {/* Background neon glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-900/10 rounded-full blur-[120px] pointer-events-none" />
-
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 transition-colors duration-200">
+      
       {/* Auth Card Container */}
-      <div className="w-full max-w-md z-10">
-        <div className="glass-panel p-8 rounded-2xl border border-white/5 shadow-2xl relative">
+      <div className="w-full max-w-md">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-lg shadow-sm relative">
           
           {/* Logo Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center p-2 bg-white/5 rounded-2xl border border-white/5 mb-4">
-              <img src={logoImg} alt="WFX Logo" className="w-12 h-12 object-contain" />
+            <div className="inline-flex items-center justify-center p-2 bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 mb-4">
+              <img src={logoImg} alt="WFX Logo" className="w-10 h-10 object-contain" />
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-              WFX AI-ERP
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              WFX ERP Platform
             </h1>
-            <p className="text-sm text-slate-400 mt-2">
+            <p className="text-xs text-slate-500 mt-2">
               {isLogin ? 'Sign in to access apparel sourcing intelligence' : 'Create an account to start exploring your data'}
             </p>
           </div>
 
           {/* Form Error Notice */}
           {error && (
-            <div className="mb-6 p-4 bg-red-950/30 border border-red-500/20 rounded-xl text-sm text-red-400">
+            <div className="mb-5 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-650 dark:text-red-400">
               {error}
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                 Email Address
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
-                  <Mail className="w-5 h-5" />
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                  <Mail className="w-4 h-4" />
                 </span>
                 <input
                   type="email"
@@ -80,18 +77,18 @@ export const Auth: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-[#0d0e16] border border-white/5 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-purple-500/40 focus:ring-1 focus:ring-purple-500/40 transition"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                 Password
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
-                  <Lock className="w-5 h-5" />
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                  <Lock className="w-4 h-4" />
                 </span>
                 <input
                   type="password"
@@ -99,7 +96,7 @@ export const Auth: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-[#0d0e16] border border-white/5 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-purple-500/40 focus:ring-1 focus:ring-purple-500/40 transition"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition"
                 />
               </div>
             </div>
@@ -107,10 +104,10 @@ export const Auth: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium rounded-xl shadow-lg shadow-purple-900/10 flex items-center justify-center gap-2 border border-purple-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm flex items-center justify-center gap-2 border border-blue-500/10 transition disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             >
               {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : isLogin ? (
                 'Sign In'
               ) : (
@@ -120,14 +117,14 @@ export const Auth: React.FC = () => {
           </form>
 
           {/* Form Switcher */}
-          <div className="text-center mt-6 text-sm text-slate-400">
+          <div className="text-center mt-6 text-xs text-slate-500">
             {isLogin ? (
               <span>
                 New to WFX ERP?{' '}
                 <button
                   type="button"
                   onClick={() => { setIsLogin(false); setError(null); }}
-                  className="text-purple-400 hover:text-purple-300 font-medium underline underline-offset-4"
+                  className="text-blue-600 dark:text-blue-500 hover:underline font-semibold"
                 >
                   Create an account
                 </button>
@@ -138,7 +135,7 @@ export const Auth: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => { setIsLogin(true); setError(null); }}
-                  className="text-purple-400 hover:text-purple-300 font-medium underline underline-offset-4"
+                  className="text-blue-600 dark:text-blue-500 hover:underline font-semibold"
                 >
                   Sign in here
                 </button>

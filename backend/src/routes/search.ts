@@ -17,7 +17,7 @@ const upload = multer({
  * POST /api/search/text
  */
 router.post('/text', authenticateJWT, async (req: AuthenticatedRequest, res: Response) => {
-  const { text, limit = 12, threshold = 0.1 } = req.body;
+  const { text } = req.body;
 
   if (!text || typeof text !== 'string') {
     return res.status(400).json({ error: 'Text query parameter is required.' });
@@ -28,17 +28,60 @@ router.post('/text', authenticateJWT, async (req: AuthenticatedRequest, res: Res
     const embedding = await embeddingService.getTextEmbedding(text);
 
     // Call pgvector match function on Supabase
+    // We retrieve all candidates up to 1000 to perform re-ranking on the server
     const { data: results, error } = await supabase.rpc('match_finished_goods', {
       query_embedding: embedding,
-      match_threshold: threshold,
-      match_count: limit
+      match_threshold: 0.01, // Fetch broad matches for the re-ranking pipeline
+      match_count: 1000
     });
 
     if (error) {
       throw error;
     }
 
-    return res.status(200).json({ results: results || [] });
+    const queryLower = text.toLowerCase();
+    const colors = ['black', 'white', 'blue', 'grey', 'gray', 'charcoal', 'navy', 'green', 'red', 'yellow', 'pink', 'orange', 'purple', 'off white', 'off-white'];
+    const categories = ['shirt', 't-shirt', 'jean', 'jacket', 'skirt', 'short', 'trouser', 'pant'];
+
+    const matchedColorsInQuery = colors.filter(c => queryLower.includes(c));
+    const matchedCategoriesInQuery = categories.filter(c => queryLower.includes(c));
+
+    // Re-rank candidates based on exact query keyword matches
+    const reRanked = (results || []).map((item: any) => {
+      let score = item.similarity;
+      const itemColor = (item.color || '').toLowerCase();
+      const itemCategory = (item.category || '').toLowerCase();
+      const itemName = (item.style_name || '').toLowerCase();
+
+      // 1. Color matching & enforcement
+      if (matchedColorsInQuery.length > 0) {
+        const matchesColor = matchedColorsInQuery.some(c => itemColor.includes(c) || itemName.includes(c));
+        if (matchesColor) {
+          score += 0.08; // Boost for color match
+        } else {
+          score -= 0.15; // Penalty for mismatching color
+        }
+      }
+
+      // 2. Category matching & enforcement
+      if (matchedCategoriesInQuery.length > 0) {
+        const matchesCategory = matchedCategoriesInQuery.some(c => itemCategory.includes(c) || itemName.includes(c));
+        if (matchesCategory) {
+          score += 0.08; // Boost for category match
+        } else {
+          score -= 0.15; // Penalty for mismatching category
+        }
+      }
+
+      return { ...item, similarity: Math.max(0, Math.min(1, score)) };
+    });
+
+    // Filter by fixed similarity threshold of 0.80, and sort descending
+    const finalResults = reRanked
+      .filter((item: any) => item.similarity >= 0.80)
+      .sort((a: any, b: any) => b.similarity - a.similarity);
+
+    return res.status(200).json({ results: finalResults });
   } catch (error: any) {
     console.error('Semantic text search error:', error.message);
     return res.status(500).json({ error: 'Internal server error during semantic search.' });
@@ -55,17 +98,14 @@ router.post('/image', authenticateJWT, upload.single('image'), async (req: Authe
   }
 
   try {
-    const limit = parseInt(req.body.limit) || 12;
-    const threshold = parseFloat(req.body.threshold) || 0.1;
-
     // Generate CLIP image embedding directly from the file buffer
     const embedding = await embeddingService.getImageEmbedding(req.file.buffer);
 
-    // Run similarity match against the database
+    // Run similarity match against the database with a fixed background threshold of 0.70
     const { data: results, error } = await supabase.rpc('match_finished_goods', {
       query_embedding: embedding,
-      match_threshold: threshold,
-      match_count: limit
+      match_threshold: 0.70,
+      match_count: 1000
     });
 
     if (error) {

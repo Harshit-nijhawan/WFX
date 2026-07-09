@@ -8,14 +8,14 @@ router.get('/', authenticateJWT, async (req: AuthenticatedRequest, res: Response
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 12;
-    const sortBy = (req.query.sort_by as string) || 'style_number';
-    const sortOrder = (req.query.sort_order as string) === 'desc' ? 'desc' : 'asc';
+    const sortBy = (req.query.sort_by as string) || (req.query.sortBy as string) || 'style_number';
+    const sortOrder = (req.query.sort_order as string) === 'desc' || (req.query.sortOrder as string) === 'desc' ? 'desc' : 'asc';
 
     // Filters
     const category = req.query.category as string;
     const fabric = req.query.fabric as string;
-    const gsmMin = parseInt(req.query.gsm_min as string);
-    const gsmMax = parseInt(req.query.gsm_max as string);
+    const gsmMin = parseInt(req.query.gsm_min as string) || parseInt(req.query.gsmMin as string);
+    const gsmMax = parseInt(req.query.gsm_max as string) || parseInt(req.query.gsmMax as string);
     const color = req.query.color as string;
     const season = req.query.season as string;
     const brand = req.query.brand as string;
@@ -48,8 +48,31 @@ router.get('/', authenticateJWT, async (req: AuthenticatedRequest, res: Response
       throw error;
     }
 
-    // Get filter values for sidebar dropdowns (unique categories, fabrics, colors, suppliers, seasons, brands)
-    // We can do this in a single DB request using exec_sql to keep performance high
+    const totalItems = count || 0;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return res.status(200).json({
+      products: data || [],
+      total: totalItems,
+      page,
+      limit,
+      totalPages: totalPages,
+      pagination: {
+        totalItems,
+        totalPages,
+        currentPage: page,
+        limit
+      }
+    });
+  } catch (error: any) {
+    console.error('Products fetch error:', error.message);
+    return res.status(500).json({ error: 'Internal server error while fetching products.' });
+  }
+});
+
+// Fetch unique filter values for dropdown selectors
+router.get('/filters', authenticateJWT, async (req: AuthenticatedRequest, res: Response) => {
+  try {
     const sidebarOptionsQuery = `
       SELECT 
         ARRAY(SELECT DISTINCT category FROM public.finished_goods WHERE category IS NOT NULL ORDER BY category) as categories,
@@ -62,32 +85,25 @@ router.get('/', authenticateJWT, async (req: AuthenticatedRequest, res: Response
     const { data: filterOptions, error: filterErr } = await supabase.rpc('exec_sql', { sql_query: sidebarOptionsQuery });
 
     if (filterErr) {
-      console.error('Filter options fetch error:', filterErr);
+      throw filterErr;
     }
 
-    return res.status(200).json({
-      products: data || [],
-      total: count || 0,
-      page,
-      limit,
-      totalPages: Math.ceil((count || 0) / limit),
-      filters: filterOptions && filterOptions[0] ? filterOptions[0] : {
-        categories: [],
-        fabrics: [],
-        colors: [],
-        seasons: [],
-        brands: [],
-        suppliers: []
-      }
+    return res.status(200).json(filterOptions && filterOptions[0] ? filterOptions[0] : {
+      categories: [],
+      fabrics: [],
+      colors: [],
+      seasons: [],
+      brands: [],
+      suppliers: []
     });
   } catch (error: any) {
-    console.error('Products fetch error:', error.message);
-    return res.status(500).json({ error: 'Internal server error while fetching products.' });
+    console.error('Fetch filter options error:', error.message);
+    return res.status(500).json({ error: 'Internal server error while fetching filter options.' });
   }
 });
 
 // Fetch product details along with tech pack details
-router.get('/:style_number', authenticateJWT, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/:style_number/details', authenticateJWT, async (req: AuthenticatedRequest, res: Response) => {
   const { style_number } = req.params;
   try {
     const { data: product, error: prodErr } = await supabase

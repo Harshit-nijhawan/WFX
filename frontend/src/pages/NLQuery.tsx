@@ -102,17 +102,6 @@ export const NLQuery: React.FC = () => {
       });
     });
 
-    es.addEventListener('explanation', (e: MessageEvent) => {
-      const data = JSON.parse(e.data);
-      setMessages((prev) => {
-        const copy = [...prev];
-        if (copy[targetIdx]) {
-          copy[targetIdx].explanation = data.explanation;
-        }
-        return copy;
-      });
-    });
-
     es.addEventListener('token', (e: MessageEvent) => {
       const data = JSON.parse(e.data);
       streamedContent += data.token;
@@ -168,7 +157,7 @@ export const NLQuery: React.FC = () => {
       // Odd indices contain the text that was between ** asterisks
       if (index % 2 === 1) {
         return (
-          <strong key={index} className="font-bold text-purple-650 dark:text-purple-400 bg-purple-550/5 dark:bg-purple-500/10 px-1.5 py-0.5 rounded border border-purple-500/10 mx-0.5">
+          <strong key={index} className="font-semibold text-blue-600 dark:text-blue-450 bg-blue-500/5 dark:bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/10 mx-0.5">
             {part}
           </strong>
         );
@@ -182,19 +171,19 @@ export const NLQuery: React.FC = () => {
     const headers = Object.keys(results[0]);
 
     return (
-      <div className="mt-4 border border-slate-200 dark:border-white/5 rounded-xl overflow-hidden max-w-full shadow-sm">
+      <div className="mt-4 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden max-w-full shadow-sm">
         <div className="overflow-x-auto max-h-72">
           <table className="w-full text-left border-collapse text-xs">
-            <thead className="bg-slate-100 dark:bg-[#0f1019] text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-white/5">
+            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800">
               <tr>
                 {headers.map((h, i) => (
                   <th key={i} className="p-3 capitalize whitespace-nowrap">{h.replace(/_/g, ' ')}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-150 dark:divide-white/5 bg-white dark:bg-[#07080e]/50">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900">
               {results.map((row, i) => (
-                <tr key={i} className="hover:bg-slate-50 dark:hover:bg-white/5 transition">
+                <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
                   {headers.map((h, j) => {
                     const cellVal = row[h];
                     const displayed = typeof cellVal === 'object' && cellVal !== null ? JSON.stringify(cellVal) : String(cellVal ?? '');
@@ -226,8 +215,8 @@ export const NLQuery: React.FC = () => {
       <div className="flex-1 overflow-y-auto pr-2 space-y-6 mb-4 pb-4">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-6">
-            <div className="p-4 bg-purple-500/10 rounded-2xl border border-purple-500/20 text-purple-400 animate-bounce">
-              <Sparkles className="w-10 h-10" />
+            <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20 text-blue-600 dark:text-blue-450 animate-pulse">
+              <Sparkles className="w-8 h-8" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-800 dark:text-white">ERP AI Layer Ready</h3>
@@ -242,9 +231,9 @@ export const NLQuery: React.FC = () => {
                 <button
                   key={i}
                   onClick={() => handleSend(q)}
-                  className="p-4 bg-white dark:bg-[#0a0b12] hover:bg-purple-500/5 dark:hover:bg-purple-600/5 border border-slate-200 dark:border-white/5 hover:border-purple-500/20 rounded-xl text-xs text-left text-slate-600 dark:text-slate-300 hover:text-purple-650 dark:hover:text-purple-300 transition flex items-start gap-3 shadow-sm"
+                  className="p-4 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-850 hover:border-slate-350 dark:hover:border-slate-700 rounded-lg text-xs text-left text-slate-600 dark:text-slate-300 transition flex items-start gap-3 shadow-sm"
                 >
-                  <HelpCircle className="w-4 h-4 text-purple-500 dark:text-purple-400 flex-shrink-0 mt-0.5" />
+                  <HelpCircle className="w-4 h-4 text-blue-650 dark:text-blue-500 flex-shrink-0 mt-0.5" />
                   <span>{q}</span>
                 </button>
               ))}
@@ -259,10 +248,10 @@ export const NLQuery: React.FC = () => {
               }`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl p-6 space-y-4 shadow-sm ${
+                className={`max-w-[85%] rounded-lg p-6 space-y-4 shadow-sm ${
                   msg.role === 'user'
-                    ? 'bg-purple-500/10 dark:bg-purple-600/10 border border-purple-200 dark:border-purple-500/20 text-purple-900 dark:text-purple-100 rounded-br-none'
-                    : 'glass-panel border border-slate-200 dark:border-white/5 text-slate-700 dark:text-slate-300 rounded-bl-none'
+                    ? 'bg-blue-600/5 dark:bg-blue-500/10 border border-blue-500/20 text-blue-905 dark:text-blue-100 rounded-br-none'
+                    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-750 dark:text-slate-300 rounded-bl-none'
                 }`}
               >
                 
@@ -273,8 +262,8 @@ export const NLQuery: React.FC = () => {
 
                 {/* Status indicator */}
                 {msg.status && (
-                  <div className="flex items-center gap-3 text-xs text-purple-400">
-                    <div className="w-2 h-2 rounded-full bg-purple-500 animate-ping" />
+                  <div className="flex items-center gap-3 text-xs text-blue-600 dark:text-blue-455">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-550 animate-ping" />
                     <span>{msg.status}</span>
                   </div>
                 )}
@@ -285,16 +274,16 @@ export const NLQuery: React.FC = () => {
                     
                     {/* 1. Generated SQL query (Collapsible) */}
                     {msg.sql && (
-                      <div className="border border-slate-200 dark:border-white/5 rounded-xl overflow-hidden bg-slate-100 dark:bg-[#0d0e16] shadow-sm">
+                      <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-950 shadow-sm">
                         <button
                           onClick={() => setExpandedSql(prev => ({ ...prev, [idx]: !prev[idx] }))}
-                          className="w-full flex items-center justify-between px-4 py-2.5 bg-slate-200/50 dark:bg-[#0f1019] text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-300/30 dark:hover:bg-[#131522] transition"
+                          className="w-full flex items-center justify-between px-4 py-2.5 bg-slate-100/50 dark:bg-slate-950 text-xs font-semibold text-slate-650 dark:text-slate-400 hover:bg-slate-200/30 dark:hover:bg-slate-900 transition"
                         >
                           <span className="flex items-center gap-2">
-                            <Terminal className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" /> 
+                            <Terminal className="w-3.5 h-3.5 text-blue-600 dark:text-blue-500" /> 
                             Generated SQL
                           </span>
-                          <span className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1 font-medium">
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1 font-semibold">
                             {expandedSql[idx] ? 'Hide Query' : 'Show Query'}
                             {expandedSql[idx] ? (
                               <ChevronUp className="w-3.5 h-3.5" />
@@ -304,7 +293,7 @@ export const NLQuery: React.FC = () => {
                           </span>
                         </button>
                         {expandedSql[idx] && (
-                          <pre className="p-4 text-xs font-mono text-emerald-700 dark:text-emerald-400 overflow-x-auto whitespace-pre-wrap leading-relaxed border-t border-slate-200 dark:border-white/5 bg-slate-50/20 dark:bg-[#07080e]/30">
+                          <pre className="p-4 text-xs font-mono text-emerald-700 dark:text-emerald-400 overflow-x-auto whitespace-pre-wrap leading-relaxed border-t border-slate-200 dark:border-slate-800 bg-slate-50/20 dark:bg-slate-900/30">
                             {msg.sql}
                           </pre>
                         )}
@@ -315,7 +304,7 @@ export const NLQuery: React.FC = () => {
                     {msg.results && (
                       <div className="space-y-2">
                         <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                          <Table className="w-3.5 h-3.5 text-purple-650 dark:text-purple-400" /> Query Results ({msg.results.length} row(s))
+                          <Table className="w-3.5 h-3.5 text-blue-600 dark:text-blue-500" /> Query Results ({msg.results.length} row(s))
                         </span>
                         {renderResultsTable(msg.results)}
                       </div>
@@ -323,8 +312,8 @@ export const NLQuery: React.FC = () => {
 
                     {/* 3. Plain English Output Explanation for Non-Tech Users */}
                     {msg.content && (
-                      <div className="p-4 bg-purple-500/5 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 rounded-xl text-xs space-y-1.5 shadow-sm">
-                        <span className="font-bold text-purple-600 dark:text-purple-400 block uppercase tracking-wider text-[10px]">Results Summary</span>
+                      <div className="p-4 bg-blue-500/5 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/20 rounded-lg text-xs space-y-1.5 shadow-sm">
+                        <span className="font-bold text-blue-600 dark:text-blue-400 block uppercase tracking-wider text-[10px]">Results Summary</span>
                         <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
                           {renderFormattedText(msg.content)}
                         </p>
@@ -355,12 +344,12 @@ export const NLQuery: React.FC = () => {
           onChange={(e) => setQuery(e.target.value)}
           disabled={isProcessing}
           placeholder="Ask a question about finished goods, invoices, suppliers..."
-          className="w-full bg-white dark:bg-[#0a0b12] border border-slate-200 dark:border-white/5 rounded-2xl pl-6 pr-14 py-4 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500/40 focus:ring-1 focus:ring-purple-500/40 transition disabled:opacity-50 shadow-sm"
+          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg pl-6 pr-14 py-4 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/20 transition disabled:opacity-50 shadow-sm"
         />
         <button
           type="submit"
           disabled={!query.trim() || isProcessing}
-          className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border border-purple-500/30 text-white rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Send className="w-4 h-4" />
         </button>

@@ -66,6 +66,9 @@ Rules for generating the SQL:
 4. If a field or search requires string matching, use ILIKE for case-insensitive matches (e.g., color ILIKE '%blue%').
 5. Always alias tables and qualify column names to avoid ambiguity.
 6. Return the exact columns needed, keeping it as simple as possible.
+7. NEVER guess or hallucinate column names. ONLY use the exact columns listed for each table in the schema description above. If a column is not explicitly described in the schema (such as 'description'), DO NOT query it.
+8. Be very careful with table aliases: make sure columns are referenced via the correct table alias (e.g., fabric_details is only on public.tech_packs, not public.finished_goods).
+9. When matching text categories or columns (e.g., in ILIKE clauses), ALWAYS convert plural words in the user query to their singular forms (e.g. use '%shirt%' instead of '%shirts%', '%jacket%' instead of '%jackets%') because the database values are stored as singular (e.g., 'Shirt', 'Jacket').
 
 Convert the following natural language query into PostgreSQL:
 "{QUERY}"`;

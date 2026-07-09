@@ -30,7 +30,7 @@ const AppContent: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
-        <Loader2 className="w-10 h-10 text-purple-400 animate-spin" />
+        <Loader2 className="w-10 h-10 text-blue-600 dark:text-blue-500 animate-spin" />
         <p className="text-sm text-slate-400">Loading session details...</p>
       </div>
     );
@@ -56,7 +56,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground flex transition-colors duration-200">
       {/* Sidebar Nav */}
       <Sidebar currentTab={currentTab} setTab={setCurrentTab} />
 
@@ -66,17 +66,17 @@ const AppContent: React.FC = () => {
         <div className="absolute top-8 right-8 z-20">
           <button
             onClick={() => setIsDarkMode(!isDarkMode)}
-            className="p-3 bg-white/40 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 rounded-xl shadow-sm text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-150 backdrop-blur-md flex items-center gap-2 text-xs font-semibold"
+            className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-lg shadow-sm transition-all duration-150 flex items-center gap-2 text-xs font-medium"
           >
             {isDarkMode ? (
               <>
-                <Sun className="w-4 h-4 text-amber-500" />
-                <span>Light Mode</span>
+                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                <span>Light</span>
               </>
             ) : (
               <>
-                <Moon className="w-4 h-4 text-indigo-400" />
-                <span>Dark Mode</span>
+                <Moon className="w-3.5 h-3.5 text-blue-500" />
+                <span>Dark</span>
               </>
             )}
           </button>

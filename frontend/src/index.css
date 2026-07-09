@@ -4,16 +4,16 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 224 71% 4%;
+    --background: 210 20% 98%; /* Slate 50 background */
+    --foreground: 224 71% 4%; /* Slate 900 text */
 
-    --card: 0 0% 100%;
+    --card: 0 0% 100%; /* White cards */
     --card-foreground: 224 71% 4%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 4%;
 
-    --primary: 263.4 70% 50.4%;
+    --primary: 221.2 83.2% 53.3%; /* Blue 600 primary */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -28,25 +28,25 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
+    --border: 214.3 31.8% 91.4%; /* Slate 200 borders */
     --input: 214.3 31.8% 91.4%;
-    --ring: 263.4 70% 50.4%;
+    --ring: 221.2 83.2% 53.3%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem; /* Tight enterprise radius: 8px */
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
+    --background: 222.2 84% 4.9%; /* Slate 950 background */
+    --foreground: 210 40% 98%; /* White text */
 
-    --card: 224 71% 6%;
-    --card-foreground: 213 31% 91%;
+    --card: 222 47% 11%; /* Slate 900 cards */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 224 71% 4%;
+    --popover: 222.2 84% 4.9%;
     --popover-foreground: 215 20.2% 65.1%;
 
-    --primary: 263.4 70% 50.4%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%; /* Blue 500 primary */
+    --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 222.2 47.4% 11.2%;
     --secondary-foreground: 210 40% 98%;
@@ -60,9 +60,9 @@
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 216 34% 17%;
+    --border: 216 34% 17%; /* Slate 800 borders */
     --input: 216 34% 17%;
-    --ring: 263.4 70% 50.4%;
+    --ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -72,7 +72,7 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
@@ -92,42 +92,11 @@
   @apply bg-accent;
 }
 
-/* Custom glassmorphism helper classes */
+/* Redefined panels using SaaS outline card patterns */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05);
-}
-
-.dark .glass-panel {
-  background: rgba(10, 11, 18, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: none;
+  @apply bg-card border border-border shadow-sm;
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.03);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.glass-card:hover {
-  border-color: rgba(139, 92, 246, 0.2);
-  background: rgba(255, 255, 255, 0.85);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
-}
-
-.dark .glass-card {
-  background: rgba(15, 17, 28, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-}
-
-.dark .glass-card:hover {
-  background: rgba(20, 22, 36, 0.6);
-  box-shadow: none;
+  @apply bg-card border border-border transition-all duration-200 shadow-sm hover:border-primary/30 hover:shadow-md;
 }
