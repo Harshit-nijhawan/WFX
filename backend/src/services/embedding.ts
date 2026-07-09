@@ -4,7 +4,9 @@ import axios from 'axios';
 dotenv.config();
 
 const HF_TOKEN = process.env.HUGGINGFACE_TOKEN;
-const HF_API_URL = 'https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32';
+// Use the Inference Providers router URL — matches the token permission "Make calls to Inference Providers"
+// The legacy api-inference.huggingface.co requires a different "Read" token type
+const HF_API_URL = 'https://router.huggingface.co/hf-inference/models/openai/clip-vit-base-patch32';
 
 /**
  * Normalizes a vector to unit length (L2 norm = 1).

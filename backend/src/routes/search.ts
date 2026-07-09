@@ -23,8 +23,8 @@ router.post('/text', authenticateJWT, async (req: AuthenticatedRequest, res: Res
     return res.status(400).json({ error: 'Text query parameter is required.' });
   }
 
+  // --- Try semantic (vector) search first ---
   try {
-    // Generate text embedding using local CLIP model
     const embedding = await embeddingService.getTextEmbedding(text);
 
     // Call pgvector match function on Supabase
@@ -81,10 +81,32 @@ router.post('/text', authenticateJWT, async (req: AuthenticatedRequest, res: Res
       .filter((item: any) => item.similarity >= 0.80)
       .sort((a: any, b: any) => b.similarity - a.similarity);
 
-    return res.status(200).json({ results: finalResults });
-  } catch (error: any) {
-    console.error('Semantic text search error:', error.message);
-    return res.status(500).json({ error: 'Internal server error during semantic search.' });
+    return res.status(200).json({ results: finalResults, searchMode: 'semantic' });
+
+  } catch (embeddingError: any) {
+    // --- Fallback: keyword search if embedding API is unavailable ---
+    console.warn('[Search] Embedding API unavailable, using keyword fallback:', embeddingError.message);
+
+    try {
+      const words = text.toLowerCase().split(/\s+/).filter(Boolean);
+      let query = supabase.from('finished_goods').select('*').limit(50);
+
+      for (const word of words.slice(0, 3)) {
+        query = query.or(
+          `style_name.ilike.%${word}%,color.ilike.%${word}%,category.ilike.%${word}%,fabric.ilike.%${word}%,brand.ilike.%${word}%`
+        );
+      }
+
+      const { data: keywordResults, error: kwErr } = await query;
+      if (kwErr) throw kwErr;
+
+      const results = (keywordResults || []).map((item: any) => ({ ...item, similarity: 0.85 }));
+      return res.status(200).json({ results, searchMode: 'keyword' });
+
+    } catch (fallbackError: any) {
+      console.error('[Search] Keyword fallback also failed:', fallbackError.message);
+      return res.status(500).json({ error: 'Search is temporarily unavailable. Please try again.' });
+    }
   }
 });
 
