@@ -21,7 +21,8 @@ const allowedOrigins: string[] = [
 ];
 
 if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
+  // Strip trailing slash — browsers never send it in the Origin header
+  allowedOrigins.push(process.env.FRONTEND_URL.replace(/\/$/, ''));
 }
 
 app.use(
