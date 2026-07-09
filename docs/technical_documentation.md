@@ -42,12 +42,13 @@ The platform separates the user interface from data processing and AI routing to
 ### 1.3 System Data Flows
 
 #### Natural Language to SQL (NL2SQL) Flow
-1. The frontend initiates a Server-Sent Events (SSE) connection to `/api/nlq/query?query=...`.
-2. The backend sends the database table schema along with the user's question to Llama 3.1 via OpenRouter.
-3. The LLM translates the question to a valid PostgreSQL SELECT query.
-4. The backend runs this query against Supabase using the `exec_sql()` function.
-5. If the query fails, a self-correction loop catches the PostgreSQL error code and requests a corrected query from the LLM.
-6. The backend executes the corrected query, retrieves the rows, and streams the conversational answer token-by-token using SSE, alongside the raw data table.
+1. The frontend initiates a Server-Sent Events (SSE) connection to `/api/nlq/query?query=...&history=...`.
+2. The query includes the serialized conversation history (up to the last 3 turns / 6 messages) to maintain context and resolve pronouns (e.g. "their", "them").
+3. The backend sends the database table schema along with this conversation history and the user's new question to Llama 3.1 via OpenRouter.
+4. The LLM translates the query, utilizing the context to resolve pronoun references.
+5. The backend runs this query against Supabase using the `exec_sql()` function.
+6. If the query fails, a self-correction loop catches the PostgreSQL error code and requests a corrected query from the LLM.
+7. The backend executes the corrected query, retrieves the rows, and streams the conversational answer token-by-token using SSE, alongside the raw data table.
 
 #### Multi-Modal Vector Search Flow
 1. The user inputs a text description (e.g., *"blue cotton shirt"*) or uploads an image file.

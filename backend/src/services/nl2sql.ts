@@ -98,8 +98,29 @@ class Nl2SqlService {
   /**
    * Queries OpenRouter to generate SQL
    */
-  async generateSql(userQuery: string): Promise<string> {
-    const prompt = SCHEMA_PROMPT.replace('{QUERY}', userQuery);
+  async generateSql(userQuery: string, history: any[] = []): Promise<string> {
+    // If there is history, prepend it to the query as context instructions for the LLM
+    let contextStr = '';
+    if (history && history.length > 0) {
+      contextStr = `Here is the conversation history of the previous questions and the SQL queries that were executed:\n`;
+      for (const turn of history) {
+        if (turn.role === 'user') {
+          contextStr += `User Question: "${turn.content}"\n`;
+        } else if (turn.role === 'assistant') {
+          if (turn.sql) {
+            contextStr += `Generated SQL: "${turn.sql}"\n`;
+          }
+          if (turn.content) {
+            // strip out markdown bold markers if any
+            const cleanedContent = turn.content.replace(/\*\*/g, '');
+            contextStr += `AI Summary: "${cleanedContent}"\n`;
+          }
+        }
+      }
+      contextStr += `\nUse this history to resolve pronouns like "their", "them", "that", "those", or follow-up details (such as showing prices/details for the styles/shirts/items mentioned in the preceding turns).\n\n`;
+    }
+
+    const prompt = SCHEMA_PROMPT.replace('{QUERY}', contextStr + userQuery);
     
     const response = await fetch(openrouterConfig.apiUrl, {
       method: 'POST',
@@ -147,7 +168,7 @@ class Nl2SqlService {
   /**
    * Self-corrects SQL if execution fails
    */
-  async generateAndExecuteWithSelfCorrection(userQuery: string, maxRetries = 2): Promise<{ sql: string; results: any[] }> {
+  async generateAndExecuteWithSelfCorrection(userQuery: string, history: any[] = [], maxRetries = 2): Promise<{ sql: string; results: any[] }> {
     let currentQuery = userQuery;
     let attempts = 0;
     let sql = '';
@@ -156,7 +177,7 @@ class Nl2SqlService {
     while (attempts < maxRetries) {
       try {
         if (attempts === 0) {
-          sql = await this.generateSql(currentQuery);
+          sql = await this.generateSql(currentQuery, history);
         } else {
           // Send original query, the failed SQL, and the error back to the LLM to get a corrected SQL query
           const correctionPrompt = `You generated the following SQL query for the user prompt "${userQuery}":

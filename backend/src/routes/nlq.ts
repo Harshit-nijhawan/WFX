@@ -25,10 +25,21 @@ router.get('/query', authenticateJWT, async (req: AuthenticatedRequest, res: Res
   };
 
   try {
+    // Parse conversation history from query string parameter
+    const historyStr = req.query.history as string;
+    let history: any[] = [];
+    if (historyStr) {
+      try {
+        history = JSON.parse(historyStr);
+      } catch (e) {
+        console.error('Failed to parse chat history context:', e);
+      }
+    }
+
     sendEvent('status', { message: 'Analyzing query and translating to SQL...' });
     
     // Step 1: Generate SQL and execute with self-correction
-    const { sql, results } = await nl2SqlService.generateAndExecuteWithSelfCorrection(query);
+    const { sql, results } = await nl2SqlService.generateAndExecuteWithSelfCorrection(query, history);
     sendEvent('sql', { sql });
     sendEvent('results', { results });
 

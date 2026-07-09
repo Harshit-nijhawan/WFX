@@ -60,10 +60,19 @@ export const NLQuery: React.FC = () => {
     };
     setMessages((prev) => [...prev, assistantMsg]);
 
+    // Slice and map past turns of history to fit query parameters limit safely (last 3 turns / 6 messages)
+    const history = messages
+      .slice(-6)
+      .map(m => ({
+        role: m.role,
+        content: m.content,
+        sql: m.sql
+      }));
+
     const targetIdx = messages.length + 1; // index of assistant message we just pushed
 
     // Connect to Server-Sent Events endpoint
-    const sseUrl = `${apiUrl}/api/nlq/query?query=${encodeURIComponent(textToSend)}&token=${encodeURIComponent(token || '')}`;
+    const sseUrl = `${apiUrl}/api/nlq/query?query=${encodeURIComponent(textToSend)}&token=${encodeURIComponent(token || '')}&history=${encodeURIComponent(JSON.stringify(history))}`;
     const es = new EventSource(sseUrl);
     eventSourceRef.current = es;
 
