@@ -212,7 +212,7 @@ export const NLQuery: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] max-w-5xl mx-auto relative">
+    <div className="flex flex-col h-[calc(100vh-10rem)] lg:h-[calc(100vh-7rem)] max-w-5xl mx-auto relative">
       
       {/* Page Header */}
       <div className="mb-6 flex-shrink-0">
