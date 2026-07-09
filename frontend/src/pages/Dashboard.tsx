@@ -144,20 +144,20 @@ export const Dashboard: React.FC = () => {
               <AreaChart data={stats.charts.monthlyRevenue} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.3} />
                 <XAxis dataKey="month" stroke="#64748b" fontSize={11} tickLine={false} />
                 <YAxis stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={formatCompact} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
-                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
-                  itemStyle={{ color: 'hsl(var(--primary))' }}
+                  contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '12px' }}
+                  labelStyle={{ color: '#0f172a', fontWeight: 'bold' }}
+                  itemStyle={{ color: '#2563eb' }}
                   formatter={(value: any) => [formatCurrency(Number(value)), 'Revenue']}
                 />
-                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
+                <Area type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -172,12 +172,12 @@ export const Dashboard: React.FC = () => {
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.charts.topBuyers} layout="vertical" margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.3} />
                 <XAxis type="number" stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={formatCompact} />
                 <YAxis type="category" dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} width={80} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
-                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
+                  contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '12px' }}
+                  labelStyle={{ color: '#0f172a', fontWeight: 'bold' }}
                   formatter={(value: any) => [formatCurrency(Number(value)), 'Spend']}
                 />
                 <Bar dataKey="value" radius={[0, 4, 4, 0]}>
@@ -199,12 +199,12 @@ export const Dashboard: React.FC = () => {
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.charts.supplierRatings} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.3} />
                 <XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} interval={0} angle={-15} textAnchor="end" height={45} />
                 <YAxis stroke="#64748b" fontSize={11} tickLine={false} domain={[0, 5]} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
-                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
+                  contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '12px' }}
+                  labelStyle={{ color: '#0f172a', fontWeight: 'bold' }}
                   formatter={(value: any) => [value, 'Rating']}
                 />
                 <Bar dataKey="rating" fill="#2563eb" radius={[4, 4, 0, 0]}>
@@ -241,8 +241,8 @@ export const Dashboard: React.FC = () => {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
-                    labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
+                    contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '12px' }}
+                    labelStyle={{ color: '#0f172a', fontWeight: 'bold' }}
                   />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
                 </PieChart>
