@@ -3,7 +3,7 @@ services:
     name: wfx-backend
     runtime: node
     rootDir: backend
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: node dist/index.js
     plan: free
     envVars:
