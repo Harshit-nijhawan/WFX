@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Lock, Mail, Loader2, AlertCircle, CheckCircle2, UserX, ShieldAlert } from 'lucide-react';
+import { Lock, Mail, Loader2, AlertCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 
 // Alert types for different scenarios
