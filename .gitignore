@@ -77,3 +77,9 @@ cypress/videos/
 # Hugging Face / Transformers local cache (if any)
 .cache/
 **/.cache/
+
+# Custom ignored files
+WFX-AI-ERP-Technical-Documentation.docx
+WFX_Demo_Video_Script.md
+render.yaml
+schema.sql
