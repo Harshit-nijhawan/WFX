@@ -1,13 +1,13 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { supabase } from '../config/supabase';
+import { supabase } from '../config/supabase.js';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'wfx_erp_jwt_secret_key_987654';
 
 // Register User
-router.post('/register', async (req: Request, res: Response) => {
+router.post('/register', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -55,14 +55,14 @@ router.post('/register', async (req: Request, res: Response) => {
         email: newUser.email
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Registration error:', error.message);
     return res.status(500).json({ error: 'Internal server error during registration.' });
   }
 });
 
 // Login User
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -101,7 +101,7 @@ router.post('/login', async (req: Request, res: Response) => {
         email: user.email
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Login error:', error.message);
     return res.status(500).json({ error: 'Internal server error during login.' });
   }

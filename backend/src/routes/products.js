@@ -1,25 +1,25 @@
-import { Router, Response } from 'express';
-import { supabase } from '../config/supabase';
-import { authenticateJWT, AuthenticatedRequest } from '../middleware/auth';
+import { Router } from 'express';
+import { supabase } from '../config/supabase.js';
+import { authenticateJWT } from '../middleware/auth.js';
 
 const router = Router();
 
-router.get('/', authenticateJWT, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/', authenticateJWT, async (req, res) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 12;
-    const sortBy = (req.query.sort_by as string) || (req.query.sortBy as string) || 'style_number';
-    const sortOrder = (req.query.sort_order as string) === 'desc' || (req.query.sortOrder as string) === 'desc' ? 'desc' : 'asc';
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const sortBy = req.query.sort_by || req.query.sortBy || 'style_number';
+    const sortOrder = req.query.sort_order === 'desc' || req.query.sortOrder === 'desc' ? 'desc' : 'asc';
 
     // Filters
-    const category = req.query.category as string;
-    const fabric = req.query.fabric as string;
-    const gsmMin = parseInt(req.query.gsm_min as string) || parseInt(req.query.gsmMin as string);
-    const gsmMax = parseInt(req.query.gsm_max as string) || parseInt(req.query.gsmMax as string);
-    const color = req.query.color as string;
-    const season = req.query.season as string;
-    const brand = req.query.brand as string;
-    const supplier = req.query.supplier as string;
+    const category = req.query.category;
+    const fabric = req.query.fabric;
+    const gsmMin = parseInt(req.query.gsm_min) || parseInt(req.query.gsmMin);
+    const gsmMax = parseInt(req.query.gsm_max) || parseInt(req.query.gsmMax);
+    const color = req.query.color;
+    const season = req.query.season;
+    const brand = req.query.brand;
+    const supplier = req.query.supplier;
 
     const offset = (page - 1) * limit;
 
@@ -64,14 +64,14 @@ router.get('/', authenticateJWT, async (req: AuthenticatedRequest, res: Response
         limit
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Products fetch error:', error.message);
     return res.status(500).json({ error: 'Internal server error while fetching products.' });
   }
 });
 
 // Fetch unique filter values for dropdown selectors
-router.get('/filters', authenticateJWT, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/filters', authenticateJWT, async (req, res) => {
   try {
     const sidebarOptionsQuery = `
       SELECT 
@@ -96,14 +96,14 @@ router.get('/filters', authenticateJWT, async (req: AuthenticatedRequest, res: R
       brands: [],
       suppliers: []
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Fetch filter options error:', error.message);
     return res.status(500).json({ error: 'Internal server error while fetching filter options.' });
   }
 });
 
 // Fetch product details along with tech pack details
-router.get('/:style_number/details', authenticateJWT, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/:style_number/details', authenticateJWT, async (req, res) => {
   const { style_number } = req.params;
   try {
     const { data: product, error: prodErr } = await supabase
@@ -126,7 +126,7 @@ router.get('/:style_number/details', authenticateJWT, async (req: AuthenticatedR
       product,
       techPack: techPack || null
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Product details fetch error:', error.message);
     return res.status(500).json({ error: 'Internal server error while fetching product details.' });
   }

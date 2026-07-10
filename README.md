@@ -197,11 +197,11 @@ System operators credentials table.
    * `JWT_SECRET`: Random hash key used to sign session cookies.
    * `OPENROUTER_API_KEY`: OpenRouter token for Llama 3.1 access.
    * `HUGGINGFACE_TOKEN`: HuggingFace User Token (with read/inference permissions) to calculate CLIP vector coordinates.
-5. Compile and start the server:
+5. Start the development server (using nodemon):
    ```bash
    npm run dev
    ```
-   The backend server runs at `http://localhost:5000`.
+   The backend server runs natively as JavaScript ES Modules at `http://localhost:5000`.
 
 ### 3. Frontend Installation & Run
 1. Open a new terminal and navigate to the frontend directory:
@@ -230,14 +230,15 @@ System operators credentials table.
 
 ## 🧪 Verification
 
-To verify that the application compiles and bundles cleanly for production, execute the following commands:
+To verify that the application compiles and bundles cleanly:
 
-* **Backend Build Check:**
+* **Backend Verification:**
+  Start the server cleanly without errors:
   ```bash
-  cd backend && npm run build
+  cd backend && npm run dev
   ```
 * **Frontend Build Check:**
+  Verify the frontend bundles cleanly without TypeScript errors:
   ```bash
   cd frontend && npm run build
   ```
-Both builds should exit without any TypeScript compilation errors.

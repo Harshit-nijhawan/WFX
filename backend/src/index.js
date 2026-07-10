@@ -1,11 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import authRoutes from './routes/auth';
-import dashboardRoutes from './routes/dashboard';
-import productRoutes from './routes/products';
-import searchRoutes from './routes/search';
-import nlqRoutes from './routes/nlq';
+import authRoutes from './routes/auth.js';
+import dashboardRoutes from './routes/dashboard.js';
+import productRoutes from './routes/products.js';
+import searchRoutes from './routes/search.js';
+import nlqRoutes from './routes/nlq.js';
 
 dotenv.config();
 
@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 // --- CORS Configuration ---
 // In production, only allow requests from the deployed Vercel frontend.
 // In development, allow localhost:5173 (Vite dev server).
-const allowedOrigins: string[] = [
+const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
 ];
@@ -58,7 +58,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/nlq', nlqRoutes);
 
 // Global Error Handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.stack || err.message || err);
   res.status(500).json({ error: 'Internal Server Error' });
 });

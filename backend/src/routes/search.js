@@ -1,8 +1,8 @@
-import { Router, Response } from 'express';
+import { Router } from 'express';
 import multer from 'multer';
-import { supabase } from '../config/supabase';
-import { embeddingService } from '../services/embedding';
-import { authenticateJWT, AuthenticatedRequest } from '../middleware/auth';
+import { supabase } from '../config/supabase.js';
+import { embeddingService } from '../services/embedding.js';
+import { authenticateJWT } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -16,7 +16,7 @@ const upload = multer({
  * Endpoint to perform semantic text-to-image/style searches
  * POST /api/search/text
  */
-router.post('/text', authenticateJWT, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/text', authenticateJWT, async (req, res) => {
   const { text } = req.body;
 
   if (!text || typeof text !== 'string') {
@@ -47,7 +47,7 @@ router.post('/text', authenticateJWT, async (req: AuthenticatedRequest, res: Res
     const matchedCategoriesInQuery = categories.filter(c => queryLower.includes(c));
 
     // Re-rank candidates based on exact query keyword matches
-    const reRanked = (results || []).map((item: any) => {
+    const reRanked = (results || []).map((item) => {
       let score = item.similarity;
       const itemColor = (item.color || '').toLowerCase();
       const itemCategory = (item.category || '').toLowerCase();
@@ -81,38 +81,38 @@ router.post('/text', authenticateJWT, async (req: AuthenticatedRequest, res: Res
     const { category, fabric, brand, supplier, color: filterColor, season, gsmMin, gsmMax } = req.body;
 
     if (category) {
-      filteredResults = filteredResults.filter((item: any) => (item.category || '').toLowerCase() === category.toLowerCase());
+      filteredResults = filteredResults.filter((item) => (item.category || '').toLowerCase() === category.toLowerCase());
     }
     if (fabric) {
-      filteredResults = filteredResults.filter((item: any) => (item.fabric || '').toLowerCase() === fabric.toLowerCase());
+      filteredResults = filteredResults.filter((item) => (item.fabric || '').toLowerCase() === fabric.toLowerCase());
     }
     if (brand) {
-      filteredResults = filteredResults.filter((item: any) => (item.brand || '').toLowerCase() === brand.toLowerCase());
+      filteredResults = filteredResults.filter((item) => (item.brand || '').toLowerCase() === brand.toLowerCase());
     }
     if (supplier) {
-      filteredResults = filteredResults.filter((item: any) => (item.supplier || '').toLowerCase() === supplier.toLowerCase());
+      filteredResults = filteredResults.filter((item) => (item.supplier || '').toLowerCase() === supplier.toLowerCase());
     }
     if (filterColor) {
-      filteredResults = filteredResults.filter((item: any) => (item.color || '').toLowerCase().includes(filterColor.toLowerCase()));
+      filteredResults = filteredResults.filter((item) => (item.color || '').toLowerCase().includes(filterColor.toLowerCase()));
     }
     if (season) {
-      filteredResults = filteredResults.filter((item: any) => (item.season || '').toLowerCase() === season.toLowerCase());
+      filteredResults = filteredResults.filter((item) => (item.season || '').toLowerCase() === season.toLowerCase());
     }
     if (gsmMin !== undefined && gsmMin !== null && gsmMin !== '') {
-      filteredResults = filteredResults.filter((item: any) => Number(item.gsm) >= Number(gsmMin));
+      filteredResults = filteredResults.filter((item) => Number(item.gsm) >= Number(gsmMin));
     }
     if (gsmMax !== undefined && gsmMax !== null && gsmMax !== '') {
-      filteredResults = filteredResults.filter((item: any) => Number(item.gsm) <= Number(gsmMax));
+      filteredResults = filteredResults.filter((item) => Number(item.gsm) <= Number(gsmMax));
     }
 
     // Filter by fixed similarity threshold of 0.80, and sort descending
     const finalResults = filteredResults
-      .filter((item: any) => item.similarity >= 0.80)
-      .sort((a: any, b: any) => b.similarity - a.similarity);
+      .filter((item) => item.similarity >= 0.80)
+      .sort((a, b) => b.similarity - a.similarity);
 
     return res.status(200).json({ results: finalResults, searchMode: 'semantic' });
 
-  } catch (embeddingError: any) {
+  } catch (embeddingError) {
     // --- Fallback: keyword search if embedding API is unavailable ---
     console.warn('[Search] Embedding API unavailable, using keyword fallback:', embeddingError.message);
 
@@ -133,34 +133,34 @@ router.post('/text', authenticateJWT, async (req: AuthenticatedRequest, res: Res
       const { category, fabric, brand, supplier, color: filterColor, season, gsmMin, gsmMax } = req.body;
 
       if (category) {
-        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.category || '').toLowerCase() === category.toLowerCase());
+        finalKeywordResults = finalKeywordResults.filter((item) => (item.category || '').toLowerCase() === category.toLowerCase());
       }
       if (fabric) {
-        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.fabric || '').toLowerCase() === fabric.toLowerCase());
+        finalKeywordResults = finalKeywordResults.filter((item) => (item.fabric || '').toLowerCase() === fabric.toLowerCase());
       }
       if (brand) {
-        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.brand || '').toLowerCase() === brand.toLowerCase());
+        finalKeywordResults = finalKeywordResults.filter((item) => (item.brand || '').toLowerCase() === brand.toLowerCase());
       }
       if (supplier) {
-        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.supplier || '').toLowerCase() === supplier.toLowerCase());
+        finalKeywordResults = finalKeywordResults.filter((item) => (item.supplier || '').toLowerCase() === supplier.toLowerCase());
       }
       if (filterColor) {
-        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.color || '').toLowerCase().includes(filterColor.toLowerCase()));
+        finalKeywordResults = finalKeywordResults.filter((item) => (item.color || '').toLowerCase().includes(filterColor.toLowerCase()));
       }
       if (season) {
-        finalKeywordResults = finalKeywordResults.filter((item: any) => (item.season || '').toLowerCase() === season.toLowerCase());
+        finalKeywordResults = finalKeywordResults.filter((item) => (item.season || '').toLowerCase() === season.toLowerCase());
       }
       if (gsmMin !== undefined && gsmMin !== null && gsmMin !== '') {
-        finalKeywordResults = finalKeywordResults.filter((item: any) => Number(item.gsm) >= Number(gsmMin));
+        finalKeywordResults = finalKeywordResults.filter((item) => Number(item.gsm) >= Number(gsmMin));
       }
       if (gsmMax !== undefined && gsmMax !== null && gsmMax !== '') {
-        finalKeywordResults = finalKeywordResults.filter((item: any) => Number(item.gsm) <= Number(gsmMax));
+        finalKeywordResults = finalKeywordResults.filter((item) => Number(item.gsm) <= Number(gsmMax));
       }
 
-      const results = finalKeywordResults.map((item: any) => ({ ...item, similarity: 0.85 }));
+      const results = finalKeywordResults.map((item) => ({ ...item, similarity: 0.85 }));
       return res.status(200).json({ results, searchMode: 'keyword' });
 
-    } catch (fallbackError: any) {
+    } catch (fallbackError) {
       console.error('[Search] Keyword fallback also failed:', fallbackError.message);
       return res.status(500).json({ error: 'Search is temporarily unavailable. Please try again.' });
     }
@@ -171,7 +171,7 @@ router.post('/text', authenticateJWT, async (req: AuthenticatedRequest, res: Res
  * Endpoint to perform image-to-image similarity searches
  * POST /api/search/image
  */
-router.post('/image', authenticateJWT, upload.single('image'), async (req: AuthenticatedRequest, res: Response) => {
+router.post('/image', authenticateJWT, upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'Image file upload is required.' });
   }
@@ -192,7 +192,7 @@ router.post('/image', authenticateJWT, upload.single('image'), async (req: Authe
     }
 
     return res.status(200).json({ results: results || [] });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Image similarity search error:', error.message);
     if (error.message && error.message.includes('HUGGINGFACE_TOKEN')) {
       return res.status(400).json({ error: 'Image search requires a HUGGINGFACE_TOKEN configured on the server. Please add it to your environment variables.' });
@@ -205,7 +205,7 @@ router.post('/image', authenticateJWT, upload.single('image'), async (req: Authe
  * Endpoint to populate embeddings for finished goods (index building)
  * POST /api/search/index
  */
-router.post('/index', authenticateJWT, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/index', authenticateJWT, async (req, res) => {
   try {
     // Get all finished goods that don't have embeddings yet
     const { data: unindexedGoods, error } = await supabase
@@ -231,13 +231,13 @@ router.post('/index', authenticateJWT, async (req: AuthenticatedRequest, res: Re
     }
 
     return await indexGoodsList(unindexedGoods || [], res);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Vector indexing error:', error.message);
     return res.status(500).json({ error: 'Internal server error during vector indexing.' });
   }
 });
 
-async function indexGoodsList(goodsList: any[], res: Response) {
+async function indexGoodsList(goodsList, res) {
   if (goodsList.length === 0) {
     return res.status(200).json({ message: 'All finished goods are already indexed.', count: 0 });
   }
@@ -268,7 +268,7 @@ async function indexGoodsList(goodsList: any[], res: Response) {
 
         if (error) throw error;
         successCount++;
-      } catch (err: any) {
+      } catch (err) {
         console.error(`Failed to index style ${item.style_number}:`, err.message);
         failCount++;
       }

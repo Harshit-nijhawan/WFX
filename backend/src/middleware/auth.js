@@ -1,27 +1,19 @@
-import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'wfx_erp_jwt_secret_key_987654';
 
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: string;
-    email: string;
-  };
-}
-
-export const authenticateJWT = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
   let token = '';
 
   if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.split(' ')[1];
   } else if (req.query.token) {
-    token = req.query.token as string;
+    token = req.query.token;
   }
 
   if (token) {
-    jwt.verify(token, JWT_SECRET, (err, decoded: any) => {
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
       if (err) {
         return res.status(403).json({ error: 'Forbidden: Invalid or expired session token.' });
       }

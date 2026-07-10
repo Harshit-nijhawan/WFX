@@ -69,3 +69,11 @@ cypress/videos/
 
 # TypeScript
 *.tsbuildinfo
+
+# Word Temp Files
+~$*
+~WR*
+
+# Hugging Face / Transformers local cache (if any)
+.cache/
+**/.cache/

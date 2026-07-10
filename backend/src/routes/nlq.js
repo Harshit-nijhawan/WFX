@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
-import { nl2SqlService } from '../services/nl2sql';
-import { authenticateJWT, AuthenticatedRequest } from '../middleware/auth';
+import { Router } from 'express';
+import { nl2SqlService } from '../services/nl2sql.js';
+import { authenticateJWT } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -8,8 +8,8 @@ const router = Router();
  * Server-Sent Events (SSE) streaming query endpoint
  * GET /api/nlq/query?query=...&token=...
  */
-router.get('/query', authenticateJWT, async (req: AuthenticatedRequest, res: Response) => {
-  const query = req.query.query as string;
+router.get('/query', authenticateJWT, async (req, res) => {
+  const query = req.query.query;
   if (!query) {
     return res.status(400).json({ error: 'Query parameter is required.' });
   }
@@ -20,14 +20,14 @@ router.get('/query', authenticateJWT, async (req: AuthenticatedRequest, res: Res
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no'); // Disable proxy buffering (for Nginx/Render hosting)
 
-  const sendEvent = (event: string, data: any) => {
+  const sendEvent = (event, data) => {
     res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
   };
 
   try {
     // Parse conversation history from query string parameter
-    const historyStr = req.query.history as string;
-    let history: any[] = [];
+    const historyStr = req.query.history;
+    let history = [];
     if (historyStr) {
       try {
         history = JSON.parse(historyStr);
@@ -112,7 +112,7 @@ Instructions:
 
     const decoder = new TextDecoder();
     // Read the streaming chunk from OpenRouter
-    for await (const chunk of reader as any) {
+    for await (const chunk of reader) {
       const text = decoder.decode(chunk);
       const lines = text.split('\n');
       for (const line of lines) {
@@ -138,7 +138,7 @@ Instructions:
 
     sendEvent('done', {});
     res.end();
-  } catch (error: any) {
+  } catch (error) {
     console.error('NLQ query stream error:', error.message);
     sendEvent('error', { message: error.message });
     res.end();

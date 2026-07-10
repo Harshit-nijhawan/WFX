@@ -1,10 +1,10 @@
-import { Router, Response } from 'express';
-import { supabase } from '../config/supabase';
-import { authenticateJWT, AuthenticatedRequest } from '../middleware/auth';
+import { Router } from 'express';
+import { supabase } from '../config/supabase.js';
+import { authenticateJWT } from '../middleware/auth.js';
 
 const router = Router();
 
-router.get('/stats', authenticateJWT, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/stats', authenticateJWT, async (req, res) => {
   try {
     // 1. Get exact counts via Supabase headers (lightweight and native)
     const { count: finishedGoodsCount, error: fgErr } = await supabase.from('finished_goods').select('*', { count: 'exact', head: true });
@@ -77,7 +77,7 @@ router.get('/stats', authenticateJWT, async (req: AuthenticatedRequest, res: Res
         supplierRatings: Array.isArray(supplierRatings) ? supplierRatings : []
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Dashboard stats fetch error:', error.message);
     return res.status(500).json({ error: 'Internal server error while fetching dashboard statistics.' });
   }
