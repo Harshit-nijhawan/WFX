@@ -8,7 +8,7 @@ An AI-native exploration platform for apparel sourcing data. This repository con
 
 The platform is designed as a decoupled client-server system:
 * **Frontend:** React SPA built with Vite, TypeScript, and Tailwind CSS. Analytical dashboards are rendered via Recharts, and the chat console uses standard EventSource streams.
-* **Backend:** Node.js Express server written in TypeScript. It handles JWT authentication, serves REST endpoints, processes multipart image files, and coordinates AI pipelines.
+* **Backend:** Node.js Express server written in JavaScript (ES Modules). It handles JWT authentication, serves REST endpoints, processes multipart image files, and coordinates AI pipelines.
 * **Database & AI Engine:** Supabase PostgreSQL database storing relational tables and vector embeddings. It executes similarity matching via the `pgvector` extension and translates NL prompts using OpenRouter (Llama 3.1).
 
 ---
