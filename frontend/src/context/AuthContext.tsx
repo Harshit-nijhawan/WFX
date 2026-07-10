@@ -49,7 +49,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed.');
+        // Attach the backend error code so callers can show specific messages
+        const err = new Error(data.error || 'Login failed.') as any;
+        err.code = data.code || null;
+        throw err;
       }
 
       localStorage.setItem('wfx_token', data.token);
@@ -72,7 +75,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Registration failed.');
+        const err = new Error(data.error || 'Registration failed.') as any;
+        err.code = data.code || null;
+        throw err;
       }
 
       localStorage.setItem('wfx_token', data.token);

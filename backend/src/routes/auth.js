@@ -77,14 +77,25 @@ router.post('/login', async (req, res) => {
       .eq('email', email)
       .maybeSingle();
 
-    if (error || !user) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+    if (error) {
+      throw error;
+    }
+
+    // User not found — return 404 with a distinct code
+    if (!user) {
+      return res.status(404).json({
+        error: 'No account found with this email address. Please register first.',
+        code: 'USER_NOT_FOUND'
+      });
     }
 
     // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({
+        error: 'Incorrect password. Please try again.',
+        code: 'WRONG_PASSWORD'
+      });
     }
 
     // Create token
